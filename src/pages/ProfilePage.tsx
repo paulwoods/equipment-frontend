@@ -110,7 +110,9 @@ const ProfilePage = (): React.JSX.Element => {
 
     return (
         <PageContainer className="space-y-8">
-                <h1 className="text-2xl font-bold text-foreground pt-2">My Profile</h1>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+                    <h1 data-testid="page-header" className="text-2xl font-bold text-foreground">My Profile</h1>
+                </div>
 
                 <div className="bg-card shadow rounded-lg">
                     {/* Tab Bar */}
