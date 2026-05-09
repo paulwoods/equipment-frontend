@@ -1,17 +1,20 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import {
     Calendar,
     CircleQuestionMark,
+    Download,
     LayoutDashboard,
     LogOut,
+    Mail,
     Monitor,
     PhoneCall,
+    Upload,
     UserRound,
     Users
 } from 'lucide-react';
 import {useAuth} from '../hooks';
-import {logout} from '../api/client';
+import {exportEquipment, logout, sendDashboardEmail} from '../api/client';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from './ui/dropdown-menu';
 import {Separator} from './ui/separator';
 
@@ -75,6 +78,22 @@ interface SidebarProps {
 
 export const Sidebar = ({onNavigate}: SidebarProps): React.JSX.Element => {
     const {username, setAuthenticated} = useAuth();
+    const [emailSending, setEmailSending] = useState(false);
+
+    const handleExport = async (): Promise<void> => {
+        await exportEquipment();
+    };
+
+    const handleEmailDashboard = async (): Promise<void> => {
+        setEmailSending(true);
+        const result = await sendDashboardEmail();
+        setEmailSending(false);
+        if (result.success) {
+            alert("Dashboard email sent successfully!");
+        } else {
+            alert("Failed to send dashboard email: " + result.error);
+        }
+    };
 
     const handleLogout = async (): Promise<void> => {
         onNavigate?.();
@@ -143,6 +162,29 @@ export const Sidebar = ({onNavigate}: SidebarProps): React.JSX.Element => {
                 {adminNav.map((item) => (
                     <NavLink key={item.href} item={item} onNavigate={onNavigate}/>
                 ))}
+                <button
+                    onClick={handleEmailDashboard}
+                    disabled={emailSending}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors border-l-2 border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed w-full text-left"
+                >
+                    <Mail className="w-4 h-4 flex-shrink-0"/>
+                    {emailSending ? "Sending..." : "Email Dashboard"}
+                </button>
+                <button
+                    onClick={handleExport}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors border-l-2 border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer w-full text-left"
+                >
+                    <Download className="w-4 h-4 flex-shrink-0"/>
+                    Export
+                </button>
+                <Link
+                    to="/equipment/import"
+                    onClick={onNavigate}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors border-l-2 border-transparent text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                    <Upload className="w-4 h-4 flex-shrink-0"/>
+                    Import
+                </Link>
 
                 <Separator className="my-3"/>
 

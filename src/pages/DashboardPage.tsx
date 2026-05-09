@@ -1,10 +1,8 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Link} from "react-router-dom";
 import type {DashboardItem} from "../types/equipment";
-import {deleteProcedure, getDashboard, sendDashboardEmail} from "../api/client";
-import {Mail} from "lucide-react";
+import {deleteProcedure, getDashboard} from "../api/client";
 import {PageContainer, PageLoader, SearchInput, SortIndicator} from "../components";
-import {Button} from "../components/ui/button";
 import {type SortOrder, useSort} from "../hooks";
 
 type SortField = 'equipmentName' | 'procedureName' | 'intervalDays' | 'daysTillDue';
@@ -36,7 +34,6 @@ const DashboardPage = (): React.JSX.Element => {
         }
     })();
     const {sortField, sortOrder, handleSort} = useSort<SortField>(initialSortField, initialSortOrder);
-    const [emailSending, setEmailSending] = useState(false);
     const [refreshCount, setRefreshCount] = useState(0);
 
     useEffect(() => {
@@ -100,38 +97,10 @@ const DashboardPage = (): React.JSX.Element => {
         }
     };
 
-    const handleEmailDashboard = async () => {
-        setEmailSending(true);
-        const result = await sendDashboardEmail();
-        setEmailSending(false);
-        if (result.success) {
-            alert("Dashboard email sent successfully!");
-        } else {
-            alert("Failed to send dashboard email: " + result.error);
-        }
-    };
-
     return (
         <PageContainer>
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
                     <h1 data-testid="page-header" className="text-2xl font-bold text-foreground">Dashboard</h1>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={handleEmailDashboard}
-                            disabled={emailSending}
-                            className="flex items-center gap-2"
-                        >
-                            <Mail className="w-4 h-4"/>
-                            {emailSending ? "Sending..." : "Email Dashboard"}
-                        </Button>
-                        <Button asChild>
-                            <Link to="/equipment">Equipment</Link>
-                        </Button>
-                        <Button asChild>
-                            <Link to="/users">Users</Link>
-                        </Button>
-                    </div>
                 </div>
 
                 <div className="bg-card shadow rounded-lg overflow-hidden">

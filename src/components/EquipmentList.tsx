@@ -60,9 +60,6 @@ export const EquipmentList = ({items, onDelete, loading = false}: EquipmentListP
               placeholder="Search equipment..."
               className="flex-grow"
           />
-        <Button variant="secondary" asChild>
-          <Link to="/equipment/import">Import</Link>
-        </Button>
         <Button asChild>
           <Link to="/equipment/new">Add Equipment</Link>
         </Button>

@@ -42,14 +42,6 @@ describe('EquipmentPage', () => {
         expect(screen.getByRole('heading', {name: 'Equipment'})).toBeInTheDocument();
     });
 
-    it('renders a Dashboard link', async () => {
-        mockFetchEquipment.mockResolvedValue(equipment);
-        await act(async () => {
-            renderPage();
-        });
-        expect(screen.getByRole('link', {name: 'Dashboard'})).toHaveAttribute('href', '/dashboard');
-    });
-
     it('removes equipment from list after confirmed delete', async () => {
         mockFetchEquipment.mockResolvedValue(equipment);
         mockDeleteEquipment.mockResolvedValue(undefined);
