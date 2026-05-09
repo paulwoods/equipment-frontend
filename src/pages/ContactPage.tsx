@@ -6,13 +6,13 @@ import {PageContainer} from "../components";
 const ContactPage = (): React.JSX.Element => {
     return (
         <PageContainer>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+                    <h1 data-testid="page-header" className="text-2xl font-bold text-foreground">Contact Us</h1>
+                </div>
                 <div
                     className="">
                     <div className="grid grid-cols-1 md:grid-cols-2">
                         <div className="p-8 md:p-12 bg-blue-600 text-white">
-                            <h1 className="text-3xl font-extrabold mb-6 tracking-tight">
-                                Contact Us
-                            </h1>
                             <p className="text-blue-100 mb-12 text-lg">
                                 Have questions about the Equipment Management System? We're here to help.
                             </p>

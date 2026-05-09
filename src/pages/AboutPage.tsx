@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
-import {Info, ShieldCheck} from "lucide-react";
+import {ShieldCheck} from "lucide-react";
 import {Button} from "../components/ui/button";
 import {getVersion} from "../api/client";
 import {PageContainer} from "../components";
@@ -17,13 +17,9 @@ const AboutPage = (): React.JSX.Element => {
     return (
         <PageContainer>
                 <div>
-                    <div className="p-8 md:p-12">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div
-                                className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl text-blue-600 dark:text-blue-400">
-                                <Info className="w-8 h-8"/>
-                            </div>
-                            <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
+                    <div>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
+                            <h1 data-testid="page-header" className="text-2xl font-bold text-foreground">
                                 About Equipment Manager
                             </h1>
                         </div>
