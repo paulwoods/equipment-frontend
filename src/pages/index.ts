@@ -22,3 +22,4 @@ export {EditUserPage} from './EditUserPage';
 export {AboutPage} from './AboutPage';
 export {ContactPage} from './ContactPage';
 export {ProfilePage} from './ProfilePage';
+export {SystemPage} from './SystemPage';

@@ -29,6 +29,7 @@ import {
     ProfilePage,
     ResetPasswordPage,
     SetupPage,
+    SystemPage,
     UsersPage
 } from './pages';
 
@@ -123,6 +124,7 @@ const App = (): React.JSX.Element => {
                             <Route path="/users" element={<ProtectedRoute email={email}><UsersPage/></ProtectedRoute>}/>
                             <Route path="/users/new" element={<ProtectedRoute email={email}><NewUserPage/></ProtectedRoute>}/>
                             <Route path="/users/:id/edit" element={<ProtectedRoute email={email}><EditUserPage/></ProtectedRoute>}/>
+                            <Route path="/system" element={<ProtectedRoute email={email}><SystemPage/></ProtectedRoute>}/>
                             <Route path="/profile" element={<ProtectedRoute email={email}><ProfilePage/></ProtectedRoute>}/>
                             <Route path="/about" element={<AboutPage/>}/>
                             <Route path="/contact" element={<ContactPage/>}/>

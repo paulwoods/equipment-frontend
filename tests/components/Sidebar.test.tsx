@@ -38,7 +38,7 @@ describe('Sidebar', () => {
   it('renders account and admin nav links', () => {
     renderSidebar();
     expect(screen.getByRole('link', {name: /my profile/i})).toBeInTheDocument();
-    expect(screen.getByRole('link', {name: /users/i})).toBeInTheDocument();
+    expect(screen.getByRole('link', {name: /system/i})).toBeInTheDocument();
   });
 
   it('renders the logged-in username', () => {
