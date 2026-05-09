@@ -9,7 +9,7 @@ const ContactPage = (): React.JSX.Element => {
                 <div
                     className="">
                     <div className="grid grid-cols-1 md:grid-cols-2">
-                        <div className="p-8 md:p-12 text-white">
+                        <div className="p-8 md:p-12 bg-blue-600 text-white">
                             <h1 className="text-3xl font-extrabold mb-6 tracking-tight">
                                 Contact Us
                             </h1>
