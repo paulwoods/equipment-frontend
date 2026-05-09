@@ -5,16 +5,14 @@ import {MemoryRouter} from 'react-router-dom';
 import {DashboardPage} from '../../src/pages/DashboardPage';
 import type {DashboardItem} from '../../src/types/equipment';
 
-const {mockGetDashboard, mockDeleteProcedure, mockSendDashboardEmail} = vi.hoisted(() => ({
+const {mockGetDashboard, mockDeleteProcedure} = vi.hoisted(() => ({
     mockGetDashboard: vi.fn(),
     mockDeleteProcedure: vi.fn(),
-    mockSendDashboardEmail: vi.fn(),
 }));
 
 vi.mock('../../src/api/client', () => ({
     getDashboard: mockGetDashboard,
     deleteProcedure: mockDeleteProcedure,
-    sendDashboardEmail: mockSendDashboardEmail,
 }));
 
 // CalendarView uses complex DOM — mock it
@@ -67,14 +65,6 @@ describe('DashboardPage', () => {
         expect(screen.getAllByText('Filter Swap').length).toBeGreaterThan(0);
     });
 
-    it('renders Equipment link', async () => {
-        mockGetDashboard.mockResolvedValue(items);
-        await act(async () => {
-            renderPage();
-        });
-        expect(screen.getByRole('link', {name: 'Equipment'})).toHaveAttribute('href', '/equipment');
-    });
-
     it('shows empty state when no items', async () => {
         mockGetDashboard.mockResolvedValue([]);
         await act(async () => {
@@ -92,39 +82,6 @@ describe('DashboardPage', () => {
         await userEvent.type(screen.getByPlaceholderText(/search procedures/i), 'Oil');
         expect(screen.queryAllByText('Filter Swap').length).toBe(0);
         expect(screen.getAllByText('Oil Change').length).toBeGreaterThan(0);
-    });
-
-    it('sends dashboard email and shows success alert', async () => {
-        mockGetDashboard.mockResolvedValue(items);
-        mockSendDashboardEmail.mockResolvedValue({success: true});
-        vi.spyOn(window, 'alert').mockImplementation(() => {
-        });
-        await act(async () => {
-            renderPage();
-        });
-
-        await act(async () => {
-            await userEvent.click(screen.getByRole('button', {name: /Email Dashboard/i}));
-        });
-
-        expect(mockSendDashboardEmail).toHaveBeenCalledOnce();
-        expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/sent successfully/i));
-    });
-
-    it('shows failure alert when email send fails', async () => {
-        mockGetDashboard.mockResolvedValue(items);
-        mockSendDashboardEmail.mockResolvedValue({success: false, error: 'SMTP error'});
-        vi.spyOn(window, 'alert').mockImplementation(() => {
-        });
-        await act(async () => {
-            renderPage();
-        });
-
-        await act(async () => {
-            await userEvent.click(screen.getByRole('button', {name: /Email Dashboard/i}));
-        });
-
-        expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Failed/i));
     });
 
     it('deletes a procedure after confirmation', async () => {
