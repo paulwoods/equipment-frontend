@@ -68,6 +68,12 @@ const DashboardPage = (): React.JSX.Element => {
         }
 
         result.sort((a, b) => {
+            const aNA = a.daysTillDue === null;
+            const bNA = b.daysTillDue === null;
+            if (aNA && !bNA) return -1;
+            if (!aNA && bNA) return 1;
+            if (aNA && bNA) return 0;
+
             let aValue: string | number;
             let bValue: string | number;
 

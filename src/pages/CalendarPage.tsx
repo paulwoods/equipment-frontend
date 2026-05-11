@@ -23,16 +23,14 @@ const CalendarPage = (): React.JSX.Element => {
     }, []);
 
     const calendarEvents = useMemo(() => {
-        return items
-            .filter(item => item.dueDate !== null)
-            .map(item => ({
-                date: new Date(item.dueDate!),
-                equipmentId: item.equipmentId,
-                equipmentName: item.equipmentName,
-                procedureId: item.procedureId,
-                procedureName: item.procedureName,
-                isOverdue: item.daysTillDue !== null && item.daysTillDue <= 0,
-            }));
+        return items.map(item => ({
+            date: item.dueDate !== null ? new Date(item.dueDate) : new Date(),
+            equipmentId: item.equipmentId,
+            equipmentName: item.equipmentName,
+            procedureId: item.procedureId,
+            procedureName: item.procedureName,
+            isOverdue: item.daysTillDue !== null && item.daysTillDue <= 0,
+        }));
     }, [items]);
 
     return (
