@@ -3,7 +3,7 @@ import {BrowserRouter, Navigate, Route, Routes, useLocation} from 'react-router-
 import {AppLayout, ThemeProvider} from './components';
 import {AuthContext} from './hooks';
 import {getMe, getSetupStatus} from './api/client';
-import type {Role, UserRole} from './types/user';
+import {canManageUsers, type Role, type UserRole} from './types/user';
 
 import {
     AboutPage,
@@ -38,6 +38,18 @@ const ProtectedRoute = ({email, children}: { email: string | null; children: Rea
     if (!email) {
         const returnTo = encodeURIComponent(location.pathname + location.search);
         return <Navigate to={`/login?returnTo=${returnTo}`} replace/>;
+    }
+    return <>{children}</>;
+};
+
+const AdminRoute = ({email, roles, children}: { email: string | null; roles: UserRole[]; children: React.ReactNode }): React.JSX.Element => {
+    const location = useLocation();
+    if (!email) {
+        const returnTo = encodeURIComponent(location.pathname + location.search);
+        return <Navigate to={`/login?returnTo=${returnTo}`} replace/>;
+    }
+    if (!canManageUsers(roles)) {
+        return <Navigate to="/dashboard" replace/>;
     }
     return <>{children}</>;
 };
@@ -121,9 +133,9 @@ const App = (): React.JSX.Element => {
                             <Route path="/equipment/:id/procedures/:procedureId/edit" element={<ProtectedRoute email={email}><EditProcedurePage/></ProtectedRoute>}/>
                             <Route path="/equipment/:id/procedures/:procedureId/perform" element={<ProtectedRoute email={email}><PerformProcedurePage/></ProtectedRoute>}/>
                             <Route path="/equipment/:id/procedures/:procedureId/history" element={<ProtectedRoute email={email}><ProcedureHistoryPage/></ProtectedRoute>}/>
-                            <Route path="/users" element={<ProtectedRoute email={email}><UsersPage/></ProtectedRoute>}/>
-                            <Route path="/users/new" element={<ProtectedRoute email={email}><NewUserPage/></ProtectedRoute>}/>
-                            <Route path="/users/:id/edit" element={<ProtectedRoute email={email}><EditUserPage/></ProtectedRoute>}/>
+                            <Route path="/users" element={<AdminRoute email={email} roles={roles}><UsersPage/></AdminRoute>}/>
+                            <Route path="/users/new" element={<AdminRoute email={email} roles={roles}><NewUserPage/></AdminRoute>}/>
+                            <Route path="/users/:id/edit" element={<AdminRoute email={email} roles={roles}><EditUserPage/></AdminRoute>}/>
                             <Route path="/system" element={<ProtectedRoute email={email}><SystemPage/></ProtectedRoute>}/>
                             <Route path="/profile" element={<ProtectedRoute email={email}><ProfilePage/></ProtectedRoute>}/>
                             <Route path="/about" element={<AboutPage/>}/>
