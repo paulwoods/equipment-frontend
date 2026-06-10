@@ -30,7 +30,9 @@ const LoginPage = (): React.JSX.Element => {
       if (res.ok) {
         await setAuthenticated(true);
         const returnTo = searchParams.get('returnTo');
-        navigate(returnTo ? decodeURIComponent(returnTo) : '/', {replace: true});
+        // Only allow same-origin paths: must start with "/" but not "//" or "/\"
+        const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
+        navigate(safeReturnTo, {replace: true});
       } else {
         setError('Invalid username or password');
         setLoading(false);
