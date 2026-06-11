@@ -40,8 +40,15 @@ export const resetPassword = async (token: string, newPassword: string): Promise
 };
 
 export const getMe = async (): Promise<{ id: string; name: string; email: string; roles: Role[] } | null> => {
-    const {data} = await apiClient.get<{ id: string; name: string; email: string; roles: Role[] }>('/api/v1/auth/me');
-    return data ?? null;
+    try {
+        const {data} = await apiClient.get<{ id: string; name: string; email: string; roles: Role[] }>('/api/v1/auth/me');
+        return data ?? null;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+            return null;
+        }
+        throw error;
+    }
 };
 
 // Setup
