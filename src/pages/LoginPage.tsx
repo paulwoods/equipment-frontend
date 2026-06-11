@@ -9,6 +9,19 @@ import {Label} from '../components/ui/label';
 import {Alert, AlertDescription} from '../components/ui/alert';
 import {AuthCard} from '../components';
 
+const loginErrorMessage = (status: number): string => {
+  if (status === 429) {
+    return 'Too many login attempts. Please wait a few minutes and try again.';
+  }
+  if (status === 403) {
+    return 'The server blocked this request. This is likely a server configuration issue, not a problem with your credentials.';
+  }
+  if (status >= 500) {
+    return 'The server is unavailable or returned an error. Please try again later.';
+  }
+  return 'Invalid username or password';
+};
+
 const LoginPage = (): React.JSX.Element => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -34,7 +47,7 @@ const LoginPage = (): React.JSX.Element => {
         const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
         navigate(safeReturnTo, {replace: true});
       } else {
-        setError('Invalid username or password');
+        setError(loginErrorMessage(res.status));
         setLoading(false);
       }
     } catch {
