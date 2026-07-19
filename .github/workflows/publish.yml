@@ -135,8 +135,12 @@ jobs:
           set -euo pipefail
           cd ~/equipment
           for i in $(seq 1 30); do
+            # 127.0.0.1, not localhost: that also resolves to ::1 and nginx
+            # listens on IPv4 only, so this probe never once connected.
+            # </dev/null: docker compose exec otherwise reads this script from
+            # stdin, swallowing the lines that report and propagate failure.
             if docker compose exec -T frontend wget -qO- --tries=1 --timeout=2 \
-                http://localhost/ >/dev/null 2>&1; then
+                http://127.0.0.1/ </dev/null >/dev/null 2>&1; then
               echo "Frontend healthy after ${i} attempt(s)."
               exit 0
             fi
