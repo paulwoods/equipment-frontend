@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import axios from "axios";
 import {changePassword, getUser, updateMe} from "../api/client";
+import {ApiError} from "../lib/apiError";
 import {useAuth} from "../hooks";
 import {Button} from "../components/ui/button";
 import {Input} from "../components/ui/input";
@@ -50,8 +50,8 @@ const ProfilePage = (): React.JSX.Element => {
             setProfileSuccess("Profile updated successfully.");
             await setAuthenticated(true);
         } catch (err) {
-            if (axios.isAxiosError(err) && err.response?.data?.detail) {
-                setProfileError(err.response.data.detail);
+            if (err instanceof ApiError && err.detail) {
+                setProfileError(err.detail);
             } else {
                 setProfileError("Failed to update profile. The email may already be in use.");
             }
@@ -78,8 +78,8 @@ const ProfilePage = (): React.JSX.Element => {
             setNewPassword('');
             setConfirmPassword('');
         } catch (err) {
-            if (axios.isAxiosError(err) && err.response?.data?.detail) {
-                setPasswordError(err.response.data.detail);
+            if (err instanceof ApiError && err.detail) {
+                setPasswordError(err.detail);
             } else {
                 setPasswordError("Failed to change password. Please check your current password.");
             }

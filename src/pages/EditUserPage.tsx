@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
-import axios from "axios";
 import {useNavigate, useParams} from "react-router-dom";
 import type {User, UserRole} from "../types/user";
 import {assignableRoles, isSystemAdmin, roleBadgeClass} from "../types/user";
 import {BackLink, LoadingScreen, NotFoundScreen, PageContainer} from "../components";
 import {getUser, updateUser} from "../api/client";
+import {ApiError} from "../lib/apiError";
 import {useAuth} from "../hooks";
 import {Button} from "../components/ui/button";
 import {Input} from "../components/ui/input";
@@ -62,8 +62,8 @@ const EditUserPage = (): React.JSX.Element => {
             }
             navigate('/users');
         } catch (err) {
-            if (axios.isAxiosError(err) && err.response?.data?.detail) {
-                setError(err.response.data.detail);
+            if (err instanceof ApiError && err.detail) {
+                setError(err.detail);
             } else {
                 setError('Failed to update user. The email may already be in use.');
             }

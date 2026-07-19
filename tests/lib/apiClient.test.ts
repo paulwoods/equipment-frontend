@@ -81,7 +81,7 @@ describe('apiClient response interceptor', () => {
             {status: 401, data: {title: 'Unauthorized', detail: 'Refresh token invalid'}},
         ];
 
-        await expect(apiClient.get('/api/v1/equipment')).rejects.toEqual({
+        await expect(apiClient.get('/api/v1/equipment')).rejects.toMatchObject({
             status: 401,
             title: 'Unauthorized',
             detail: 'Refresh token invalid',
@@ -116,7 +116,7 @@ describe('apiClient response interceptor', () => {
     it('does not attempt a nested refresh when the refresh endpoint itself 401s', async () => {
         queues['/api/v1/auth/refresh'] = [{status: 401, data: {title: 'Unauthorized'}}];
 
-        await expect(apiClient.post('/api/v1/auth/refresh')).rejects.toEqual({status: 401, title: 'Unauthorized'});
+        await expect(apiClient.post('/api/v1/auth/refresh')).rejects.toMatchObject({status: 401, title: 'Unauthorized'});
 
         expect(calls['/api/v1/auth/refresh']).toBe(1);
     });
@@ -124,7 +124,7 @@ describe('apiClient response interceptor', () => {
     it('does not attempt a refresh when login itself 401s', async () => {
         queues['/api/v1/auth/login'] = [{status: 401, data: {title: 'Unauthorized'}}];
 
-        await expect(apiClient.post('/api/v1/auth/login')).rejects.toEqual({status: 401, title: 'Unauthorized'});
+        await expect(apiClient.post('/api/v1/auth/login')).rejects.toMatchObject({status: 401, title: 'Unauthorized'});
 
         expect(calls['/api/v1/auth/login']).toBe(1);
         expect(calls['/api/v1/auth/refresh']).toBeUndefined();
