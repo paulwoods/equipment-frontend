@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {login} from '../api/client';
+import type {ApiError} from '../lib/apiError';
 import {Lock, User} from 'lucide-react';
 import {useAuth} from '../hooks';
 import {Link, useNavigate, useSearchParams} from 'react-router-dom';
@@ -39,19 +40,19 @@ const LoginPage = (): React.JSX.Element => {
     const password = formData.get('password') as string;
 
     try {
-      const res = await login(email, password);
-      if (res.ok) {
-        await setAuthenticated(true);
-        const returnTo = searchParams.get('returnTo');
-        // Only allow same-origin paths: must start with "/" but not "//" or "/\"
-        const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
-        navigate(safeReturnTo, {replace: true});
+      await login(email, password);
+      await setAuthenticated(true);
+      const returnTo = searchParams.get('returnTo');
+      // Only allow same-origin paths: must start with "/" but not "//" or "/\"
+      const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
+      navigate(safeReturnTo, {replace: true});
+    } catch (error) {
+      const apiError = error as ApiError;
+      if (apiError.status === 0) {
+        setError('Login failed. Please try again.');
       } else {
-        setError(loginErrorMessage(res.status));
-        setLoading(false);
+        setError(loginErrorMessage(apiError.status));
       }
-    } catch {
-      setError('Login failed. Please try again.');
       setLoading(false);
     }
   };

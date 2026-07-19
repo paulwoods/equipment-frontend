@@ -1,105 +1,35 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React from "react";
 import {Link} from "react-router-dom";
 import type {DashboardItem} from "../types/equipment";
-import {deleteProcedure, getDashboard} from "../api/client";
+import {deleteProcedure} from "../api/client";
 import {PageContainer, PageLoader, SearchInput, SortIndicator} from "../components";
-import {type SortOrder, useSort} from "../hooks";
+import {type SortOrder, useDashboardData, usePersistedState} from "../hooks";
+import type {DashboardSortField} from "../lib/dashboardFilters";
 
-type SortField = 'equipmentName' | 'procedureName' | 'intervalDays' | 'daysTillDue';
-
-const STORAGE_KEY = 'dashboard_settings';
+const SEARCH_TERM_KEY = 'dashboard_searchTerm';
+const SORT_FIELD_KEY = 'dashboard_sortField';
+const SORT_ORDER_KEY = 'dashboard_sortOrder';
 
 const DashboardPage = (): React.JSX.Element => {
-    const [items, setItems] = useState<DashboardItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').searchTerm ?? "";
-        } catch {
-            return "";
+    const [searchTerm, setSearchTerm] = usePersistedState(SEARCH_TERM_KEY, "");
+    const [sortField, setSortField] = usePersistedState<DashboardSortField>(SORT_FIELD_KEY, 'daysTillDue');
+    const [sortOrder, setSortOrder] = usePersistedState<SortOrder>(SORT_ORDER_KEY, 'asc');
+
+    const handleSort = (field: DashboardSortField) => {
+        if (field === sortField) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('asc');
         }
-    });
-    const initialSortField = (() => {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').sortField ?? 'daysTillDue';
-        } catch {
-            return 'daysTillDue';
-        }
-    })();
-    const initialSortOrder = (() => {
-        try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}').sortOrder ?? 'asc';
-        } catch {
-            return 'asc';
-        }
-    })();
-    const {sortField, sortOrder, handleSort} = useSort<SortField>(initialSortField, initialSortOrder);
-    const [refreshCount, setRefreshCount] = useState(0);
+    };
 
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({searchTerm, sortField, sortOrder}));
-    }, [searchTerm, sortField, sortOrder]);
-
-    useEffect(() => {
-        let cancelled = false;
-        getDashboard().then((data) => {
-            if (!cancelled) {
-                setItems(data);
-                setLoading(false);
-            }
-        }).catch(() => {
-            if (!cancelled) setLoading(false);
-        });
-        return () => {
-            cancelled = true;
-        };
-    }, [refreshCount]);
-
-    const filteredAndSortedItems = useMemo(() => {
-        let result = [...items];
-
-        if (searchTerm) {
-            const lower = searchTerm.toLowerCase();
-            result = result.filter(item =>
-                item.equipmentName.toLowerCase().includes(lower) ||
-                item.procedureName.toLowerCase().includes(lower) ||
-                (item.procedureDescription && item.procedureDescription.toLowerCase().includes(lower))
-            );
-        }
-
-        result.sort((a, b) => {
-            const aNA = a.daysTillDue === null;
-            const bNA = b.daysTillDue === null;
-            if (aNA && !bNA) return -1;
-            if (!aNA && bNA) return 1;
-            if (aNA && bNA) return 0;
-
-            let aValue: string | number;
-            let bValue: string | number;
-
-            if (sortField === 'daysTillDue') {
-                aValue = a.daysTillDue ?? Number.MAX_SAFE_INTEGER;
-                bValue = b.daysTillDue ?? Number.MAX_SAFE_INTEGER;
-            } else if (sortField === 'intervalDays') {
-                aValue = a.intervalDays;
-                bValue = b.intervalDays;
-            } else {
-                aValue = a[sortField].toLowerCase();
-                bValue = b[sortField].toLowerCase();
-            }
-
-            if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-            if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-            return 0;
-        });
-
-        return result;
-    }, [items, searchTerm, sortField, sortOrder]);
+    const {items: filteredAndSortedItems, loading, refresh} = useDashboardData(searchTerm, sortField, sortOrder);
 
     const handleDelete = async (equipmentId: string, procedureId: string) => {
         if (confirm("Are you sure you want to delete this procedure?")) {
             await deleteProcedure(equipmentId, procedureId);
-            setRefreshCount(c => c + 1);
+            refresh();
         }
     };
 
@@ -154,9 +84,9 @@ const DueStatus = ({item}: { item: DashboardItem }): React.JSX.Element => {
 const DashboardList = ({items, onDelete, sortField, sortOrder, onSort}: {
     items: DashboardItem[];
     onDelete: (eqId: string, procId: string) => void;
-    sortField: SortField;
+    sortField: DashboardSortField;
     sortOrder: SortOrder;
-    onSort: (field: SortField) => void;
+    onSort: (field: DashboardSortField) => void;
 }): React.JSX.Element => {
     return (
         <div>

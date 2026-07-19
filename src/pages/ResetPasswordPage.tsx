@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {resetPassword} from '../api/client';
+import type {ApiError} from '../lib/apiError';
 import {Lock} from 'lucide-react';
 import {Link, useSearchParams} from 'react-router-dom';
 import {Button} from '../components/ui/button';
@@ -33,16 +34,15 @@ const ResetPasswordPage = (): React.JSX.Element => {
         }
 
         try {
-            const res = await resetPassword(token, newPassword);
-            if (res.ok) {
-                setSuccess(true);
-            } else if (res.status === 400) {
+            await resetPassword(token, newPassword);
+            setSuccess(true);
+        } catch (error) {
+            const apiError = error as ApiError;
+            if (apiError.status === 400) {
                 setError('Invalid or expired token.');
             } else {
                 setError('Request failed. Please try again.');
             }
-        } catch {
-            setError('Request failed. Please try again.');
         } finally {
             setLoading(false);
         }

@@ -39,27 +39,16 @@ afterEach(() => vi.clearAllMocks());
 
 describe('client', () => {
     describe('login', () => {
-        it('POSTs to /api/v1/auth/login and returns ok:true on success', async () => {
+        it('POSTs to /api/v1/auth/login and resolves on success', async () => {
             mockPost.mockResolvedValue({data: null});
-            const result = await login('user@example.com', 'pass');
+            await expect(login('user@example.com', 'pass')).resolves.toBeUndefined();
             expect(mockPost).toHaveBeenCalledWith('/api/v1/auth/login', {email: 'user@example.com', password: 'pass'});
-            expect(result).toEqual({ok: true, status: 200});
         });
 
-        it('returns ok:false with status on axios error', async () => {
-            const err = Object.assign(new Error('Unauthorized'), {
-                isAxiosError: true,
-                response: {status: 401},
-            });
+        it('rejects with the error thrown by apiClient', async () => {
+            const err = {status: 401, title: 'Unauthorized'};
             mockPost.mockRejectedValue(err);
-            const result = await login('bad@example.com', 'wrong');
-            expect(result).toEqual({ok: false, status: 401});
-        });
-
-        it('returns ok:false with status 500 on non-axios error', async () => {
-            mockPost.mockRejectedValue(new Error('Network failure'));
-            const result = await login('a@b.com', 'x');
-            expect(result).toEqual({ok: false, status: 500});
+            await expect(login('bad@example.com', 'wrong')).rejects.toEqual(err);
         });
     });
 

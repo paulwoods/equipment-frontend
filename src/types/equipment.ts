@@ -18,6 +18,8 @@ export interface Equipment {
     purchaseDate: string; // ISO date string from JSON
 }
 
+export type DueStatus = 'OVERDUE' | 'Upcoming' | 'No history';
+
 export interface DashboardItem {
     equipmentId: string;
     equipmentName: string;
@@ -27,5 +29,5 @@ export interface DashboardItem {
     intervalDays: number;
     daysTillDue: number | null;
     dueDate: string | null;
-    status: string;
+    status: DueStatus;
 }

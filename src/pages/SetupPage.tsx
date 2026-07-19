@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {setupAdmin} from "../api/client";
+import type {ApiError} from "../lib/apiError";
 import {Lock, Mail} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {Button} from "../components/ui/button";
@@ -27,11 +28,12 @@ const SetupPage = ({onSetupComplete}: SetupPageProps): React.JSX.Element => {
         const password = formData.get("password") as string;
 
         try {
-            const res = await setupAdmin(email, password);
-            if (res.ok) {
-                onSetupComplete(email);
-                window.location.href = '/dashboard';
-            } else if (res.status === 409) {
+            await setupAdmin(email, password);
+            onSetupComplete(email);
+            window.location.href = '/dashboard';
+        } catch (error) {
+            const apiError = error as ApiError;
+            if (apiError.status === 409) {
                 setError("Setup already completed. Redirecting to login...");
                 setTimeout(() => navigate('/login', {replace: true}), 2000);
                 setLoading(false);
@@ -39,9 +41,6 @@ const SetupPage = ({onSetupComplete}: SetupPageProps): React.JSX.Element => {
                 setError("Setup failed. Please try again.");
                 setLoading(false);
             }
-        } catch {
-            setError("Setup failed. Please try again.");
-            setLoading(false);
         }
     };
 

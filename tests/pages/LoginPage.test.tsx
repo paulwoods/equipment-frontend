@@ -41,7 +41,7 @@ describe('LoginPage', () => {
 
     it('calls login and setAuthenticated on successful submit', async () => {
         const setAuthenticated = vi.fn();
-        mockLogin.mockResolvedValue({ok: true});
+        mockLogin.mockResolvedValue(undefined);
         renderPage(setAuthenticated);
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');
@@ -55,7 +55,7 @@ describe('LoginPage', () => {
     });
 
     it('shows invalid-credentials message on 401', async () => {
-        mockLogin.mockResolvedValue({ok: false, status: 401});
+        mockLogin.mockRejectedValue({status: 401, title: 'Unauthorized'});
         renderPage();
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');
@@ -68,7 +68,7 @@ describe('LoginPage', () => {
     });
 
     it('shows server-configuration message on 403', async () => {
-        mockLogin.mockResolvedValue({ok: false, status: 403});
+        mockLogin.mockRejectedValue({status: 403, title: 'Forbidden'});
         renderPage();
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');
@@ -82,7 +82,7 @@ describe('LoginPage', () => {
     });
 
     it('shows rate-limit message on 429', async () => {
-        mockLogin.mockResolvedValue({ok: false, status: 429});
+        mockLogin.mockRejectedValue({status: 429, title: 'Too Many Requests'});
         renderPage();
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');
@@ -96,7 +96,7 @@ describe('LoginPage', () => {
     });
 
     it('shows server-error message on 5xx', async () => {
-        mockLogin.mockResolvedValue({ok: false, status: 502});
+        mockLogin.mockRejectedValue({status: 502, title: 'Bad Gateway'});
         renderPage();
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');
@@ -110,7 +110,7 @@ describe('LoginPage', () => {
     });
 
     it('shows error message when login throws', async () => {
-        mockLogin.mockRejectedValue(new Error('network error'));
+        mockLogin.mockRejectedValue({status: 0, title: 'Network error'});
         renderPage();
 
         await userEvent.type(screen.getByPlaceholderText('Email'), 'alice@example.com');

@@ -1,20 +1,8 @@
-import axios from 'axios';
 import {apiClient} from '../lib/apiClient';
+import type {ApiError} from '../lib/apiError';
 import type {DashboardItem, Equipment, ImportResult} from '../types/equipment';
 import type {Perform, Procedure} from '../types/procedure';
 import type {Role, User, UserCreatePayload, UserUpdatePayload} from '../types/user';
-
-const postWithStatus = async (url: string, payload?: unknown): Promise<{ ok: boolean; status: number }> => {
-    try {
-        await apiClient.post(url, payload);
-        return {ok: true, status: 200};
-    } catch (error: unknown) {
-        if (axios.isAxiosError(error) && error.response) {
-            return {ok: false, status: error.response.status};
-        }
-        return {ok: false, status: 500};
-    }
-};
 
 // Version
 export const getVersion = async (): Promise<{ version: string }> => {
@@ -23,20 +11,20 @@ export const getVersion = async (): Promise<{ version: string }> => {
 };
 
 // Auth
-export const login = async (email: string, password: string): Promise<{ ok: boolean; status: number }> => {
-    return postWithStatus('/api/v1/auth/login', {email, password});
+export const login = async (email: string, password: string): Promise<void> => {
+    await apiClient.post('/api/v1/auth/login', {email, password});
 };
 
 export const logout = async (): Promise<void> => {
     await apiClient.post('/api/v1/auth/logout');
 };
 
-export const forgotPassword = async (email: string): Promise<{ ok: boolean; status: number }> => {
-    return postWithStatus('/api/v1/auth/forgot-password', {email});
+export const forgotPassword = async (email: string): Promise<void> => {
+    await apiClient.post('/api/v1/auth/forgot-password', {email});
 };
 
-export const resetPassword = async (token: string, newPassword: string): Promise<{ ok: boolean; status: number }> => {
-    return postWithStatus('/api/v1/auth/reset-password', {token, newPassword});
+export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
+    await apiClient.post('/api/v1/auth/reset-password', {token, newPassword});
 };
 
 export const getMe = async (): Promise<{ id: string; name: string; email: string; roles: Role[] } | null> => {
@@ -44,7 +32,7 @@ export const getMe = async (): Promise<{ id: string; name: string; email: string
         const {data} = await apiClient.get<{ id: string; name: string; email: string; roles: Role[] }>('/api/v1/auth/me');
         return data ?? null;
     } catch (error: unknown) {
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
+        if ((error as ApiError).status === 401) {
             return null;
         }
         throw error;
@@ -57,8 +45,8 @@ export const getSetupStatus = async (): Promise<{ setupRequired: boolean }> => {
     return data;
 };
 
-export const setupAdmin = async (email: string, password: string): Promise<{ ok: boolean; status: number }> => {
-    return postWithStatus('/api/v1/setup', {email, password});
+export const setupAdmin = async (email: string, password: string): Promise<void> => {
+    await apiClient.post('/api/v1/setup', {email, password});
 };
 
 // Equipment

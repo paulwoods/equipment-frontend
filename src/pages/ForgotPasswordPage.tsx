@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {forgotPassword} from '../api/client';
+import type {ApiError} from '../lib/apiError';
 import {Mail} from 'lucide-react';
 import {Link} from 'react-router-dom';
 import {Button} from '../components/ui/button';
@@ -23,16 +24,15 @@ const ForgotPasswordPage = (): React.JSX.Element => {
         const email = formData.get('email') as string;
 
         try {
-            const res = await forgotPassword(email);
-            if (res.ok) {
-                setSuccess(true);
-            } else if (res.status === 429) {
+            await forgotPassword(email);
+            setSuccess(true);
+        } catch (error) {
+            const apiError = error as ApiError;
+            if (apiError.status === 429) {
                 setError('Too many requests. Please try again later.');
             } else {
                 setError('Request failed. Please try again.');
             }
-        } catch {
-            setError('Request failed. Please try again.');
         } finally {
             setLoading(false);
         }
