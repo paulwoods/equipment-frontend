@@ -1,15 +1,25 @@
-import {afterEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {act, render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {MemoryRouter} from 'react-router-dom';
 import {AuthContext} from '../../src/hooks/useAuth';
 import {LoginPage} from "../../src/pages/LoginPage";
 
-const {mockLogin} = vi.hoisted(() => ({
+const {mockLogin, mockGetGoogleConfig, mockGoogleLogin} = vi.hoisted(() => ({
     mockLogin: vi.fn(),
+    mockGetGoogleConfig: vi.fn(),
+    mockGoogleLogin: vi.fn(),
 }));
 
-vi.mock('../../src/api/client', () => ({login: mockLogin}));
+vi.mock('../../src/api/client', () => ({
+    login: mockLogin,
+    getGoogleConfig: mockGetGoogleConfig,
+    googleLogin: mockGoogleLogin,
+}));
+
+// Every test here drives the password form; Google sign-in is covered separately
+// in GoogleSignInButton.test.tsx, so keep it switched off and out of the way.
+beforeEach(() => mockGetGoogleConfig.mockResolvedValue({enabled: false, clientId: null}));
 
 const renderPage = (setAuthenticated = vi.fn()) =>
     render(

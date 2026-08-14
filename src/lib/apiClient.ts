@@ -11,7 +11,8 @@ export const apiClient = axios.create({
 });
 
 const REFRESH_URL = '/api/v1/auth/refresh';
-const NO_REFRESH_URLS = [REFRESH_URL, '/api/v1/auth/login', '/api/v1/auth/logout', '/api/v1/auth/me'];
+// '/api/v1/auth/google' also covers '/api/v1/auth/google/config' — the check is a substring match.
+const NO_REFRESH_URLS = [REFRESH_URL, '/api/v1/auth/login', '/api/v1/auth/google', '/api/v1/auth/logout', '/api/v1/auth/me'];
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 

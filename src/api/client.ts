@@ -15,6 +15,20 @@ export const login = async (email: string, password: string): Promise<void> => {
     await apiClient.post('/api/v1/auth/login', {email, password});
 };
 
+export interface GoogleConfig {
+    enabled: boolean;
+    clientId: string | null;
+}
+
+export const getGoogleConfig = async (): Promise<GoogleConfig> => {
+    const {data} = await apiClient.get<GoogleConfig>('/api/v1/auth/google/config');
+    return data;
+};
+
+export const googleLogin = async (credential: string): Promise<void> => {
+    await apiClient.post('/api/v1/auth/google', {credential});
+};
+
 export const logout = async (): Promise<void> => {
     await apiClient.post('/api/v1/auth/logout');
 };

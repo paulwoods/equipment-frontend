@@ -8,7 +8,7 @@ import {Button} from '../components/ui/button';
 import {Input} from '../components/ui/input';
 import {Label} from '../components/ui/label';
 import {Alert, AlertDescription} from '../components/ui/alert';
-import {AuthCard} from '../components';
+import {AuthCard, GoogleSignInButton} from '../components';
 
 const loginErrorMessage = (status: number): string => {
   if (status === 429) {
@@ -30,6 +30,16 @@ const LoginPage = (): React.JSX.Element => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Shared by both sign-in methods: adopt the session the server just handed us
+  // and go wherever the user was originally headed.
+  const completeSignIn = async (): Promise<void> => {
+    await setAuthenticated(true);
+    const returnTo = searchParams.get('returnTo');
+    // Only allow same-origin paths: must start with "/" but not "//" or "/\"
+    const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
+    navigate(safeReturnTo, {replace: true});
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setLoading(true);
@@ -41,11 +51,7 @@ const LoginPage = (): React.JSX.Element => {
 
     try {
       await login(email, password);
-      await setAuthenticated(true);
-      const returnTo = searchParams.get('returnTo');
-      // Only allow same-origin paths: must start with "/" but not "//" or "/\"
-      const safeReturnTo = returnTo && returnTo.startsWith('/') && !/^\/[/\\]/.test(returnTo) ? returnTo : '/';
-      navigate(safeReturnTo, {replace: true});
+      await completeSignIn();
     } catch (error) {
       const apiError = error as ApiError;
       if (apiError.status === 0) {
@@ -110,6 +116,8 @@ const LoginPage = (): React.JSX.Element => {
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
         </form>
+
+        <GoogleSignInButton onSuccess={completeSignIn} onError={setError}/>
           </AuthCard>
     </div>
   );
