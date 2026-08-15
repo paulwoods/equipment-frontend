@@ -59,8 +59,8 @@ export const getSetupStatus = async (): Promise<{ setupRequired: boolean }> => {
     return data;
 };
 
-export const setupAdmin = async (email: string, password: string): Promise<void> => {
-    await apiClient.post('/api/v1/setup', {email, password});
+export const setupAdmin = async (email: string, password: string, setupToken: string): Promise<void> => {
+    await apiClient.post('/api/v1/setup', {email, password, setupToken});
 };
 
 // Equipment

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {setupAdmin} from "../api/client";
 import type {ApiError} from "../lib/apiError";
-import {Lock, Mail} from "lucide-react";
+import {KeyRound, Lock, Mail} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {Button} from "../components/ui/button";
 import {Input} from "../components/ui/input";
@@ -26,9 +26,10 @@ const SetupPage = ({onSetupComplete}: SetupPageProps): React.JSX.Element => {
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
+        const setupToken = formData.get("setupToken") as string;
 
         try {
-            await setupAdmin(email, password);
+            await setupAdmin(email, password, setupToken);
             onSetupComplete(email);
             window.location.href = '/dashboard';
         } catch (error) {
@@ -36,6 +37,15 @@ const SetupPage = ({onSetupComplete}: SetupPageProps): React.JSX.Element => {
             if (apiError.status === 409) {
                 setError("Setup already completed. Redirecting to login...");
                 setTimeout(() => navigate('/login', {replace: true}), 2000);
+                setLoading(false);
+            } else if (apiError.status === 403) {
+                setError("That setup token is not correct.");
+                setLoading(false);
+            } else if (apiError.status === 503) {
+                setError("No setup token is configured on the server. Set APP_SETUP_TOKEN and restart it.");
+                setLoading(false);
+            } else if (apiError.status === 429) {
+                setError("Too many setup attempts. Try again later.");
                 setLoading(false);
             } else {
                 setError("Setup failed. Please try again.");
@@ -93,6 +103,24 @@ const SetupPage = ({onSetupComplete}: SetupPageProps): React.JSX.Element => {
                                     className="pl-10"
                                 />
                             </div>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="setupToken" className="sr-only">Setup token</Label>
+                            <div className="relative">
+                                <KeyRound
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"/>
+                                <Input
+                                    id="setupToken"
+                                    name="setupToken"
+                                    type="password"
+                                    required
+                                    placeholder="Setup token"
+                                    className="pl-10"
+                                />
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                                The APP_SETUP_TOKEN configured on the server.
+                            </p>
                         </div>
                     </div>
 
